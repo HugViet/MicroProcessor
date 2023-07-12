@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "D:/learn/ESPIDF/Espressif/frameworks/esp-idf-v4.4.5/components/freertos/include",
+                "D:/learn/ESPIDF/Espressif/frameworks/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ]
+        }
+    ],
+    "version": 4
+}
