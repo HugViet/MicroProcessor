@@ -27,6 +27,8 @@ static int dht11_read_data(gpio_num_t pin) {
     gpio_set_direction(pin, GPIO_MODE_INPUT);
     if (gpio_get_level(pin)) {
         ESP_LOGE(TAG, "DHT11 bus not pulled down");
+        dht11_data[2]=0;
+        dht11_data[0]=0;
         return -1;
     }
 
@@ -73,9 +75,13 @@ int dht11_get_temperature() {
 
 int dht11_get_humidity() {
     return dht11_data[0];
-
-void dht11_readData(){
-     ESP_LOGI(__func__, "Temperature: %d°C\t Humidity: %d%%", dht11_data[2], dht11_data[0]);
 }
 
-}
+// void dht11_readData(){
+//      ESP_LOGI(__func__, "Temperature: %d°C\t Humidity: %d%%", dht11_data[2], dht11_data[0]);
+// }
+
+// void dht11_readData(int temp, int humi){
+//    ESP_LOGI(__func__, "Temperature: %d°C\tHumidity: %d%%", dht11_get_temperature(), dht11_get_humidity());
+// }
+

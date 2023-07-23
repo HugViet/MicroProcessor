@@ -10,6 +10,5 @@ int dht11_read(gpio_num_t pin);
 int dht11_get_temperature();
 int dht11_get_humidity();
 //void dht11_readData();
-int temp();
-
+// void dht11_readData(int temp,int humi);
 #endif

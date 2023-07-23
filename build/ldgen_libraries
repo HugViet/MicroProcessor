@@ -72,6 +72,9 @@ D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/wifi_provisioning/libwi
 D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/main/libmain.a
 D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/MQ135-master/libMQ135-master.a
 D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/PMS7003/libPMS7003.a
+D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/TFT_DISPLAY/libTFT_DISPLAY.a
 D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/dht11/libdht11.a
+D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/lvgl/liblvgl.a
+D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/lvgl_esp32_drivers/liblvgl_esp32_drivers.a
 D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/protocol_examples_common/libprotocol_examples_common.a
 D:/learn/ESPIDF/Espressif/frameworks/KTVXL/build/esp-idf/sensor_1/libsensor_1.a

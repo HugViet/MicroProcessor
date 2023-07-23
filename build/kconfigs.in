@@ -54,3 +54,5 @@ source "D:/learn/ESPIDF/Espressif/frameworks/esp-idf-v4.4.5/components/vfs/Kconf
 source "D:/learn/ESPIDF/Espressif/frameworks/esp-idf-v4.4.5/components/wear_levelling/Kconfig"
 source "D:/learn/ESPIDF/Espressif/frameworks/esp-idf-v4.4.5/components/wifi_provisioning/Kconfig"
 source "D:/learn/ESPIDF/Espressif/frameworks/esp-idf-v4.4.5/components/wpa_supplicant/Kconfig"
+source "D:/learn/ESPIDF/Espressif/frameworks/KTVXL/component/lvgl/Kconfig"
+source "D:/learn/ESPIDF/Espressif/frameworks/KTVXL/component/lvgl_esp32_drivers/Kconfig"

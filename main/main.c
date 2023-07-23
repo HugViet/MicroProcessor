@@ -2,30 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-//#include <sys/time.h>
 
 #include "sdkconfig.h"
 #include "esp_err.h"
 #include "esp_log.h"
-//#include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_wifi_types.h"
-//#include "esp_event_loop.h"
-//#include "esp_event.h"
-//#include "esp_sleep.h"
-//#include "esp_timer.h"
-//#include "esp_chip_info.h"
 #include "nvs_flash.h"
-//#include "esp_netif.h"
-//#include "esp_mac.h"
-//#include "esp_attr.h"
-#include "esp_spi_flash.h"
-//#include "mqtt_client.h"
-//#include "esp_tls.h"
-//#include "esp_ota_ops.h"
-//#include <sys/param.h>
 #include "protocol_examples_common.h"
 #include "esp_adc_cal.h"
+#include "esp_system.h"
 
 #include "driver/adc.h"
 #include "driver/gpio.h"
@@ -38,8 +24,8 @@
 #include "freertos/semphr.h"
 #include "freertos/timers.h"
 #include "freertos/queue.h"
-//#include "freertos/ringbuf.h"
 #include "freertos/event_groups.h"
+#include "esp_freertos_hooks.h"
 
 #include "lwip/err.h"
 #include "lwip/sockets.h"
@@ -51,23 +37,20 @@
 #include "dht11.h"
 #include "MQ135.h"
 
+#include "../component/TFT_DISPLAY/tft.h"
+
 //UART Config
 uart_config_t pms_uart_config = UART_CONFIG_DEFAULT(); // 
 
-//PMS7003
-uint32_t pm1_0;
-uint32_t pm2_5;
-uint32_t pm10;
-
 //DHT11
-#define DHT11_PIN GPIO_NUM_4
+#define DHT11_PIN GPIO_NUM_27
 uint32_t pm1p0_t, pm2p5_t, pm10_t;
 uint32_t temperature, humidity;
+uint64_t CO2;
 
 //MQ135
 #define DEFAULT_VREF    1100  
 #define NO_OF_SAMPLES   64  
-
 static esp_adc_cal_characteristics_t *adc_chars;
 #if CONFIG_IDF_TARGET_ESP32
 static const adc_channel_t channel = ADC_CHANNEL_6;     //GPIO34 if ADC1, GPIO14 if ADC2
@@ -85,31 +68,13 @@ uint32_t voltage =0;
 static const char *TAG = "Connect";
 char REQUEST[512];
 
-struct dataSensor_st
-{
-	float temperature;
-	float pressure;
-	float humidity;
-	uint32_t pm1_0;
-	uint32_t pm2_5;
-};
+//tft
+TaskHandle_t updateScreenTask_handle = NULL;
+SemaphoreHandle_t updateScreen_semaphore = NULL;
+struct label_st label_to_display;
 
-struct dataSensor_st dataFromSensor;
-
-void dht11_readData(){
-    int ret = dht11_read(DHT11_PIN);
-    if (ret == DHT11_OK) {
-        ESP_LOGI(__func__, "Temperature: %d°C\tHumidity: %d%%", dht11_get_temperature(), dht11_get_humidity());
-    } else {
-        printf("Failed to read data from DHT11 sensor\n");
-    }
-}
-
-void mq135_readData(int temperature,int humidity){
-    float CO2 = getCorrectedPPM(temperature,humidity,voltage);
-    //printf( "CO2 :%f ppm\n",CO2);
-    ESP_LOGI(__func__,"CO2: %fdppm\n",CO2);
-}
+void dht11_readData();
+void mq135_readData(int temperature,int humidity);
 
 static void check_efuse(void)
 {
@@ -221,7 +186,7 @@ void httpPush_task(void *pvParameters)
 
         ESP_LOGI(TAG, "Data pushed to sever");
         freeaddrinfo(res);
-        sprintf(REQUEST, "GET https://api.thingspeak.com/update?api_key=VLKYGVR2LAQKZ2E9&field1=%d&field2=%d&field3=%d&field4=%d&field5=%d\n\n",pm1p0_t,pm2p5_t,pm10_t,humidity,temperature);
+        sprintf(REQUEST, "GET https://api.thingspeak.com/update?api_key=VLKYGVR2LAQKZ2E9&field1=%d&field2=%d&field3=%d&field4=%d&field5=%d&field6=%lld\n\n",pm1p0_t,pm2p5_t,pm10_t,humidity,temperature,CO2);
         if (write(s, REQUEST, strlen(REQUEST)) < 0) {
             ESP_LOGE(TAG, "... socket send failed");
             close(s);
@@ -253,6 +218,14 @@ void httpPush_task(void *pvParameters)
     }
 }
 
+void updateScreen_task(void *parameters){   
+    while(1){
+         tft_updateScreen(pm1p0_t,pm2p5_t,pm10_t,humidity,temperature,CO2);
+         lv_task_handler();
+         vTaskDelay(pdMS_TO_TICKS(3000));
+     }
+}
+
 void app_main(void)
 {
     ESP_ERROR_CHECK(nvs_flash_init() );
@@ -260,6 +233,10 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     ESP_ERROR_CHECK(example_connect());
     ESP_ERROR_CHECK_WITHOUT_ABORT(pms7003_initUart(&pms_uart_config));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(tft_initialize());
+    tft_initScreen();
+    lv_task_handler();
+    vTaskDelay(pdMS_TO_TICKS(10));
     check_efuse();
     if (unit == ADC_UNIT_1) {
         adc1_config_width(width);
@@ -273,4 +250,22 @@ void app_main(void)
     xTaskCreate(mq135Check_task, "Read_voltage", 2048, NULL, 25, NULL );
     xTaskCreate(sensorRead_task,"Sensor_Read",10*1024,NULL,(UBaseType_t)25,NULL); 
     xTaskCreate(httpPush_task,"Http_connect",3*1024,NULL,(UBaseType_t)5,NULL);
+    xTaskCreate(updateScreen_task, "Update data on screen", (1024*16), NULL, (BaseType_t)9, &updateScreenTask_handle);
+}
+
+
+
+void dht11_readData(){
+    int ret = dht11_read(DHT11_PIN);
+    if (ret == DHT11_OK) {
+        ESP_LOGI(__func__, "Temperature: %d°C\tHumidity: %d%%", dht11_get_temperature(), dht11_get_humidity());
+    } else {
+        printf("Failed to read data from DHT11 sensor\n");
+    }
+}
+
+void mq135_readData(int temperature,int humidity){
+    CO2 = getCorrectedPPM(temperature,humidity,voltage);
+    //printf( "CO2 :%f ppm\n",CO2);
+    ESP_LOGI(__func__,"CO2: %llddppm\n",CO2);
 }
