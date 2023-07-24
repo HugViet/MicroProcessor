@@ -134,7 +134,7 @@ void tft_initScreen(){
 
     label_to_display.temp_val = lv_label_create(lv_scr_act(), NULL);
     lv_obj_add_style(label_to_display.temp_val, LV_OBJ_PART_MAIN, &valueStyle);
-    lv_label_set_text(label_to_display.temp_val, "NULL");
+    lv_label_set_text(label_to_display.temp_val, "0");
     lv_obj_set_pos(label_to_display.temp_val,-60,70);
 
     //Humidity
@@ -145,7 +145,7 @@ void tft_initScreen(){
 
     label_to_display.humi_val = lv_label_create(lv_scr_act(), NULL);
     lv_obj_add_style(label_to_display.humi_val, LV_OBJ_PART_MAIN, &valueStyle);
-    lv_label_set_text(label_to_display.humi_val, "NULL");
+    lv_label_set_text(label_to_display.humi_val, "0");
     lv_obj_set_pos(label_to_display.humi_val,-60,150);
 
 
@@ -157,7 +157,7 @@ void tft_initScreen(){
 
     label_to_display.co2_val = lv_label_create(lv_scr_act(), NULL);
     lv_obj_add_style(label_to_display.co2_val, LV_OBJ_PART_MAIN, &valueStyle);
-    lv_label_set_text(label_to_display.co2_val, "NULL");
+    lv_label_set_text(label_to_display.co2_val, "0");
     lv_obj_set_pos(label_to_display.co2_val,-60,250);
 
     //PM10
@@ -168,7 +168,7 @@ void tft_initScreen(){
 
     label_to_display.pm10_val = lv_label_create(lv_scr_act(), NULL);
     lv_obj_add_style(label_to_display.pm10_val, LV_OBJ_PART_MAIN, &valueStyle);
-    lv_label_set_text(label_to_display.pm10_val, "NULL"); 
+    lv_label_set_text(label_to_display.pm10_val, "0"); 
     lv_obj_set_pos(label_to_display.pm10_val,60,70);
 
     //PM2.5
@@ -179,7 +179,7 @@ void tft_initScreen(){
 
     label_to_display.pm2_5_val = lv_label_create(lv_scr_act(), NULL);
     lv_obj_add_style(label_to_display.pm2_5_val, LV_OBJ_PART_MAIN, &valueStyle);
-    lv_label_set_text(label_to_display.pm2_5_val, "NULL");
+    lv_label_set_text(label_to_display.pm2_5_val, "0");
     lv_obj_set_pos(label_to_display.pm2_5_val,60,150);
 
 
@@ -191,54 +191,24 @@ void tft_initScreen(){
  
     label_to_display.pm1_val = lv_label_create(lv_scr_act(), NULL);
     lv_obj_add_style(label_to_display.pm1_val, LV_OBJ_PART_MAIN, &valueStyle);
-    lv_label_set_text(label_to_display.pm1_val, "NULL");
+    lv_label_set_text(label_to_display.pm1_val, "0");
     lv_obj_set_pos(label_to_display.pm1_val,60,250);
  
     // label_to_display.value_label = lv_label_create(lv_scr_act(), NULL);
     // lv_label_set_text(label_to_display.value_label, "123");
     // lv_obj_add_style(label_to_display.value_label, LV_OBJ_PART_MAIN, &valueStyle);
     // lv_obj_set_pos(label_to_display.value_label,0,60); 
-     lv_label_set_text(label_to_display.temp_val, "hello");
+     lv_label_set_text(label_to_display.temp_val, "0");
     ESP_LOGI(__func__, "TFT initialize screen done!");
 }
-
-
-
-// esp_err_t tft_updateScreen(struct dataSensor_st *data_sensor, const char*timestring){
-//     lv_label_set_text(label_to_display.dateTime, timestring);
-
-//     char dataConvertedToString[6];
-//     memset(dataConvertedToString, 0, 6);
-
-//     sprintf(dataConvertedToString, "%.2f", data_sensor->temperature);
-//     lv_label_set_text(label_to_display.temp_val, dataConvertedToString);
-
-//     sprintf(dataConvertedToString, "%.2f", data_sensor->humidity);
-//     lv_label_set_text(label_to_display.humi_val, dataConvertedToString);
-
-//     sprintf(dataConvertedToString, "%.2f", ((data_sensor->pressure)/1000));
-//     lv_label_set_text(label_to_display.press_val, dataConvertedToString);
-
-//     sprintf(dataConvertedToString, "%d", data_sensor->pm10);
-//     lv_label_set_text(label_to_display.pm10_val, dataConvertedToString);
-
-//     sprintf(dataConvertedToString, "%d", data_sensor->pm2_5);
-//     lv_label_set_text(label_to_display.pm2_5_val, dataConvertedToString);
-
-//     sprintf(dataConvertedToString, "%d", data_sensor->pm1_0);
-//     lv_label_set_text(label_to_display.pm1_val, dataConvertedToString);
-
-//     sprintf(dataConvertedToString, "%d", data_sensor->co2);
-//     lv_label_set_text(label_to_display.co2_val, dataConvertedToString);
-
-//     return ESP_OK;
-// }
 
 void tft_updateScreen(int pm1,int pm2_5,int pm10,int humi,int temp,float co2){
     lv_label_set_text_fmt(label_to_display.pm1_val, "%d",pm1);
     lv_label_set_text_fmt(label_to_display.pm2_5_val, "%d",pm2_5);
     lv_label_set_text_fmt(label_to_display.pm10_val, "%d",pm10);
+    if(humi!=0||temp!=0){
     lv_label_set_text_fmt(label_to_display.humi_val, "%d",humi);
     lv_label_set_text_fmt(label_to_display.temp_val, "%d",temp);
     lv_label_set_text_fmt(label_to_display.co2_val, "%.2f",co2);
+    }
 }

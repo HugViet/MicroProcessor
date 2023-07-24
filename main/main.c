@@ -267,5 +267,5 @@ void dht11_readData(){
 void mq135_readData(int temperature,int humidity){
     CO2 = getCorrectedPPM(temperature,humidity,voltage);
     //printf( "CO2 :%f ppm\n",CO2);
-    ESP_LOGI(__func__,"CO2: %llddppm\n",CO2);
+    ESP_LOGI(__func__,"CO2: %lldppm\n",CO2);
 }
