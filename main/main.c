@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-
-#include "sdkconfig.h"
+#include <sys/time.h>
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
@@ -12,20 +10,6 @@
 #include "protocol_examples_common.h"
 #include "esp_adc_cal.h"
 #include "esp_system.h"
-
-#include "driver/adc.h"
-#include "driver/gpio.h"
-#include "driver/uart.h"
-#include "driver/i2c.h"
-#include "driver/spi_common.h"
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/semphr.h"
-#include "freertos/timers.h"
-#include "freertos/queue.h"
-#include "freertos/event_groups.h"
-#include "esp_freertos_hooks.h"
 
 #include "lwip/err.h"
 #include "lwip/sockets.h"
@@ -36,7 +20,6 @@
 #include "pms7003.h"
 #include "dht11.h"
 #include "MQ135.h"
-
 #include "../component/TFT_DISPLAY/tft.h"
 
 //UART Config
@@ -132,7 +115,7 @@ void sensorRead_task(void *pvParameters)
     gpio_set_direction(DHT11_PIN, GPIO_MODE_OUTPUT);
     gpio_set_level(DHT11_PIN, 0);
     vTaskDelay(pdMS_TO_TICKS(2000));
- 
+
     while (1)
     {
         //ESP_ERROR_CHECK_WITHOUT_ABORT(pms7003_initUart(&pms_uart_config));
@@ -147,7 +130,10 @@ void sensorRead_task(void *pvParameters)
 }
 
 void httpPush_task(void *pvParameters)
-{
+{   
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(example_connect());
     const struct addrinfo hints = {
         .ai_family = AF_INET,
         .ai_socktype = SOCK_STREAM,
@@ -218,7 +204,7 @@ void httpPush_task(void *pvParameters)
     }
 }
 
-void updateScreen_task(void *parameters){   
+void updateScreen_task(void *parameters){ 
     while(1){
          tft_updateScreen(pm1p0_t,pm2p5_t,pm10_t,humidity,temperature,CO2);
          lv_task_handler();
@@ -229,9 +215,6 @@ void updateScreen_task(void *parameters){
 void app_main(void)
 {
     ESP_ERROR_CHECK(nvs_flash_init() );
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    ESP_ERROR_CHECK(example_connect());
     ESP_ERROR_CHECK_WITHOUT_ABORT(pms7003_initUart(&pms_uart_config));
     ESP_ERROR_CHECK_WITHOUT_ABORT(tft_initialize());
     tft_initScreen();
@@ -266,6 +249,5 @@ void dht11_readData(){
 
 void mq135_readData(int temperature,int humidity){
     CO2 = getCorrectedPPM(temperature,humidity,voltage);
-    //printf( "CO2 :%f ppm\n",CO2);
     ESP_LOGI(__func__,"CO2: %lldppm\n",CO2);
 }

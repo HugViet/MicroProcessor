@@ -151,7 +151,7 @@ void tft_initScreen(){
 
     //CO2
     label_to_display.co2_label = lv_label_create(lv_scr_act(), NULL);
-    lv_label_set_text(label_to_display.co2_label, "CO2(ppm)");
+    lv_label_set_text(label_to_display.co2_label, "Impure(ppm)");
     lv_obj_add_style(label_to_display.co2_label, LV_OBJ_PART_MAIN, &labelStyle);
     lv_obj_set_pos(label_to_display.co2_label,0,220); 
 

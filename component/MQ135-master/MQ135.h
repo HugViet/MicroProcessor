@@ -6,7 +6,7 @@
 /// Calibration resistance at atmospheric CO2 level
 #define RZERO 76.63 // / Điện trở hiệu chuẩn ở mức CO2 trong khí quyển
 /// Parameters for calculating ppm of CO2 from sensor resistance
-#define PARA 116.6020682// / Thông số tính toán ppm CO2 từ điện trở cảm biến
+#define PARA 1166.020682// / Thông số tính toán ppm CO2 từ điện trở cảm biến
 #define PARB 2.769034857
 
 /// Parameters to model temperature and humidity dependence // / Các tham số để mô hình hóa sự phụ thuộc nhiệt độ và độ ẩm

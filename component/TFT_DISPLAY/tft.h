@@ -59,6 +59,8 @@ struct label_st
     lv_obj_t *pm1_label;
     lv_obj_t *pm1_val;
 
+    lv_obj_t *start_text;
+
 };
 
 extern struct label_st label_to_display;
